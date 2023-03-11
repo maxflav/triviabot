@@ -1,0 +1,23 @@
+{
+    "irc": {
+        "server": "irc.snoonet.org",
+        "port": 6667,
+        "nick": "triviabot",
+        "nickpass": "password",
+        "channel": "#maxletest"
+    },
+
+    "trivia": {
+        "secs_between_questions": 15,
+        "secs_between_hints": 20,
+
+        "scores_db": "scores.json",
+        "questions_path": "questions.csv",
+
+        "num_hints": 3,
+        "scores": [10,5,2]
+    },
+
+    "admin": ":maxle!maxle@user/maxle",
+    "command_key": "!"
+}
