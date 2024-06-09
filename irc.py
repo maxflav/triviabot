@@ -84,7 +84,7 @@ class IRC:
 
 
     def handle_unregistered(self, line):
-        if not (":This nickname is registered" in line) or (":You have not registered." in line):
+        if not (":This nickname is registered" in line or ":You have not registered." in line):
             return
 
         self.send(f"NICKSERV IDENTIFY {config.get('irc', 'nickpass')}\n")
