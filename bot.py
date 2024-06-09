@@ -171,7 +171,7 @@ class TriviaBot:
             self.current_question = None
             self.current_answer = None
 
-        elif command == "points":
+        elif command in ["points", "score"]:
             if len(args) > 0:
                 for_user = args[0]
             else:
@@ -181,4 +181,4 @@ class TriviaBot:
             self.irc.send_to_channel(channel, f"{for_user} has {BOLD}{score}{BOLD} points.")
 
         elif command in ["lifetime", "daily", "weekly", "monthly"]:
-            self.irc.send_to_channel(channel, f"{command} is not implemented yet, try {command_key}points")
+            self.irc.send_to_channel(channel, f"{command} is not implemented yet, try {command_key}score")
