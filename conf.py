@@ -10,7 +10,7 @@ class Config:
             with open("config.json") as config_file:
                 self.config_dict = json.load(config_file)
         except FileNotFoundError:
-            print("Could not file config.json!")
+            print("Could not find file config.json!")
             exit(0)
         except json.decoder.JSONDecodeError as e:
             print("Could not parse config.json")
