@@ -87,12 +87,14 @@ class IRC:
         if not (":This nickname is registered" in line or ":You have not registered." in line):
             return
 
+        time.sleep(0.1)
         self.send(f"NICKSERV IDENTIFY {config.get('irc', 'nickpass')}\n")
 
     def handle_nickname_in_use(self, line):
         if not ":Nickname is already in use." in line:
             return
 
+        time.sleep(0.1)
         self.send(f"NICKSERV GHOST {config.get('irc', 'nick')} {config.get('irc', 'nickpass')}\n")
 
 
@@ -100,6 +102,7 @@ class IRC:
         if not (":Password accepted" in line or ":Your nickname is not registered" in line):
             return
 
+        time.sleep(0.1)
         self.send("JOIN " + config.get('irc', 'channel') + "\n")
 
 

@@ -182,3 +182,7 @@ class TriviaBot:
 
         elif command in ["lifetime", "daily", "weekly", "monthly"]:
             self.irc.send_to_channel(channel, f"{command} is not implemented yet, try {command_key}score")
+
+        elif command == "help":
+            self.irc.send_to_channel(channel, f"Trivia bot created by maxle. This is a work in progress.")
+            self.irc.send_to_channel(channel, f"Bot commands: !start !stop !score")
