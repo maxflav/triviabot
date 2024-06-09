@@ -31,25 +31,30 @@ class IRC:
 
  
     def send(self, msg):
-        print("> " + msg)
+        print(f"> {msg}")
         self.irc_socket.send(bytes(msg, "UTF-8"))
 
  
     def send_to_channel(self, channel, msg):
-        self.send("PRIVMSG " + channel + " :" + msg + "\n")
+        self.send(f"PRIVMSG {channel} :{msg}\n")
+
+
+    def send_to_nickserv(self, msg):
+        self.send(f"PRIVMSG NickServ :{msg}\n")
  
 
     def connect(self):
-        print("Connecting to: " + config.get('irc', 'server'))
+        print(f"Connecting to: {config.get('irc', 'server')}")
         self.irc_socket.connect((config.get('irc', 'server'), config.get('irc', 'port')))
 
         self.listener_thread = threading.Thread(target=self.listen)
         self.listener_thread.start()
 
-        self.send("USER " + config.get('irc', 'nick') + " " + config.get('irc', 'nick') +" " + config.get('irc', 'nick') + " :python\n")
-        self.send("NICK " + config.get('irc', 'nick') + "\n")
-        self.send("NICKSERV IDENTIFY " + config.get('irc', 'nickpass') + "\n")
-        self.send("JOIN " + config.get('irc', 'channel') + "\n")
+        nick = config.get('irc', 'nick')
+        self.send(f"USER {nick} {nick} {nick} :python\n")
+        self.send(f"NICK {nick}\n")
+        # self.send(f"NICKSERV IDENTIFY {config.get('irc', 'nickpass')}\n")
+        self.send(f"JOIN {config.get('irc', 'channel')}\n")
 
 
     def listen(self):
@@ -80,22 +85,22 @@ class IRC:
         if not line.startswith("PING"):
             return
 
-        self.send('PONG ' + line[5:] + '\r\n')
+        self.send(f'PONG {line[5:]}\r\n')
 
 
     def handle_unregistered(self, line):
-        if not (":This nickname is registered" in line or ":You have not registered." in line):
+        if not ":This nickname is registered" in line:
             return
 
         time.sleep(0.1)
-        self.send(f"NICKSERV IDENTIFY {config.get('irc', 'nickpass')}\n")
+        self.send_to_nickserv(f"IDENTIFY {config.get('irc', 'nickpass')}\n")
 
     def handle_nickname_in_use(self, line):
         if not ":Nickname is already in use." in line:
             return
 
         time.sleep(0.1)
-        self.send(f"NICKSERV GHOST {config.get('irc', 'nick')} {config.get('irc', 'nickpass')}\n")
+        self.send_to_nickserv(f"GHOST {config.get('irc', 'nick')} {config.get('irc', 'nickpass')}\n")
 
 
     def handle_registered(self, line):
@@ -103,7 +108,7 @@ class IRC:
             return
 
         time.sleep(0.1)
-        self.send("JOIN " + config.get('irc', 'channel') + "\n")
+        self.send(f"JOIN {config.get('irc', 'channel')}\n")
 
 
     def handle_privmsg(self, line):
