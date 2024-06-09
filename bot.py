@@ -131,7 +131,7 @@ class TriviaBot:
 
             user_score = self.get_user_score(username) + self.current_score_value
             self.set_user_score(username, user_score)
-            self.irc.send_to_channel(channel, f"{username}, {BOLD}{self.current_answer}{BOLD} is correct! You got {self.current_score_value} points.")
+            self.irc.send_to_channel(channel, f"{username}, {BOLD}{self.current_answer}{BOLD} is correct! You got {self.current_score_value} points for a total of {user_score}.")
 
             self.current_question = None
             self.current_answer = None
