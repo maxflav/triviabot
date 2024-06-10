@@ -25,6 +25,10 @@ class Config:
         return config_pointer
 
 
+    def reload(self):
+        self.load_from_file()
+
+
 if config is None:
     config = Config()
     config.load_from_file()

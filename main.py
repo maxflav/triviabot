@@ -1,3 +1,7 @@
 from bot import TriviaBot
 
-TriviaBot().start()
+
+bot = TriviaBot().start()
+
+def reload():
+    pass

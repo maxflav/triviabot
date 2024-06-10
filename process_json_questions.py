@@ -16,7 +16,9 @@ for item in data:
 	category = fix(item['category'])
 	question = fix(item['question'])
 	answer = fix(item['answer'])
+
 	if question[0] == question[-1] == "'":
 		question = question.strip("'")
+
 	formatted_question = f"{category} {question}"
 	writer.writerow([formatted_question,answer])

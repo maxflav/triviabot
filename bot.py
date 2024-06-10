@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+if __name__ == "__main__":
+    print("Run main.py, not bot.py")
+    exit(1)
+
 from collections import defaultdict
 import csv
 from random import choice, random
@@ -19,6 +23,13 @@ lock = threading.Lock()
 BOLD = ""
 BLUE = "12"
 GREEN = "03"
+
+INVISIBLE = "​"
+
+
+def unping(username):
+    return username[0] + INVISIBLE + username[1:]
+
 
 class TriviaBot:
     def __init__(self):
@@ -168,7 +179,20 @@ class TriviaBot:
 
 
     def admin_commands(self, username, channel, message, full_user):
-        pass
+        if full_user != config.get('admin'):
+            return
+
+        command_key = config.get('command_key')
+        if not message.startswith(command_key):
+            return
+
+        parts = message.split(" ")
+        command = parts[0][len(command_key):]
+        args = "".join(parts[1:])
+
+        if command == "reload_config":
+            config.reload()
+            self.irc.send_to_channel(channel, "Reloaded config")
 
 
     def user_commands(self, username, channel, message, full_user):
@@ -197,16 +221,25 @@ class TriviaBot:
 
         elif command in ["points", "score"]:
             if len(args) > 0:
-                for_user = args[0]
+                for_user = args
             else:
                 for_user = username
 
             score = self.get_user_score(for_user)
             self.irc.send_to_channel(channel, f"{for_user} has {BOLD}{score}{BOLD} points.")
 
-        elif command in ["lifetime", "daily", "weekly", "monthly"]:
-            self.irc.send_to_channel(channel, f"{command} is not implemented yet, try {command_key}score")
+        elif command in ["scores", "lifetime"]:
+            top_10 = sorted(db.all(), key=lambda row: row['score'], reverse=True)[:10]
+            self.irc.send_to_channel(channel,
+                "    ".join(
+                    f"{place+1}. {BOLD}{unping(row['username'])}{BOLD} {row['score']}"
+                    for (place, row) in enumerate(top_10)
+                )
+            )
+
+        elif command in ["daily", "weekly", "monthly"]:
+            self.irc.send_to_channel(channel, f"{command} is not implemented yet, try {command_key}scores")
 
         elif command == "help":
             self.irc.send_to_channel(channel, f"Trivia bot created by maxle. This is a work in progress.")
-            self.irc.send_to_channel(channel, f"Bot commands: !start !stop !score")
+            self.irc.send_to_channel(channel, f"Bot commands: !start !stop !score !scores")
