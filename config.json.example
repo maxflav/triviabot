@@ -10,6 +10,7 @@
     "trivia": {
         "secs_between_questions": 15,
         "secs_between_hints": 20,
+        "idle_timeout": 1800,
 
         "scores_db": "scores.json",
         "questions_path": "questions.csv",

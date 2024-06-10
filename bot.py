@@ -31,6 +31,7 @@ class TriviaBot:
 
         self.question_start_time = 0
         self.current_question = None
+        self.last_guess_time = None
 
         self.current_answer = None
         self.current_score_value = 0
@@ -49,6 +50,14 @@ class TriviaBot:
 
     def start(self):
         self.irc.connect()
+
+
+    def is_idle(self):
+        idle_timeout = config.get('trivia', 'idle_timeout')
+        if not idle_timeout:
+            return False
+
+        return time.time() - self.last_guess_time > idle_timeout
 
 
     def start_new_question(self):
@@ -99,8 +108,12 @@ class TriviaBot:
 
 
         if times_up:
-            time.sleep(config.get("trivia", "secs_between_questions"))
-            self.start_new_question()
+            if self.is_idle():
+                self.irc.send_to_channel(self.channel, "Stopping due to inactivity. Use !start to start the bot again.")
+                self.stop_trivia()
+            else:
+                time.sleep(config.get("trivia", "secs_between_questions"))
+                self.start_new_question()
         else:
             time.sleep(config.get("trivia", "secs_between_hints"))
             self.show_hints(question_start_time, hint_level+1)
@@ -119,6 +132,8 @@ class TriviaBot:
 
 
     def message_handler(self, username, channel, message, full_user):
+        self.last_guess_time = time.time()
+
         with lock:
             if not self.running:
                 return
@@ -140,6 +155,18 @@ class TriviaBot:
         self.start_new_question()
 
 
+    def stop_trivia(self):
+        self.running = False
+        self.current_question = None
+        self.current_answer = None
+
+
+    def start_trivia(self):
+        self.running = True
+        self.last_guess_time = time.time()
+        self.start_new_question()
+
+
     def admin_commands(self, username, channel, message, full_user):
         pass
 
@@ -158,8 +185,7 @@ class TriviaBot:
                 return
 
             self.irc.send_to_channel(channel, "Starting Trivia")
-            self.running = True
-            self.start_new_question()
+            self.start_trivia()
 
 
         elif command == "stop":
@@ -167,9 +193,7 @@ class TriviaBot:
                 return
 
             self.irc.send_to_channel(channel, "Stopping Trivia")
-            self.running = False
-            self.current_question = None
-            self.current_answer = None
+            self.stop_trivia()
 
         elif command in ["points", "score"]:
             if len(args) > 0:
