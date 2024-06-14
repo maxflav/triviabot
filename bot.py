@@ -44,6 +44,9 @@ class TriviaBot:
         self.current_question = None
         self.last_guess_time = None
 
+        self.current_streak_user = None
+        self.current_streak = 0
+
         self.current_answer = None
         self.current_score_value = 0
         self.current_hint = None
@@ -158,6 +161,16 @@ class TriviaBot:
             user_score = self.get_user_score(username) + self.current_score_value
             self.set_user_score(username, user_score)
             self.irc.send_to_channel(channel, f"{username}, {BOLD}{self.current_answer}{BOLD} is correct! You got {self.current_score_value} points for a total of {user_score}.")
+
+            if self.current_streak_user == username:
+                self.current_streak += 1
+                if self.current_streak >= 3:
+                    self.irc.send_to_channel(channel, f"{BOLD}{unping(username)}{BOLD} is on a streak of {BOLD}{self.current_streak}{BOLD}!")
+            else:
+                if self.current_streak >= 3:
+                    self.irc.send_to_channel(channel, f"{BOLD}{unping(username)}{BOLD} broke {BOLD}{unping(self.current_streak_user)}{BOLD}'s streak of {BOLD}{self.current_streak}{BOLD}!")
+                self.current_streak_user = username
+                self.current_streak = 1
 
             self.current_question = None
             self.current_answer = None
